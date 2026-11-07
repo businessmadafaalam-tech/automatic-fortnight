@@ -12,32 +12,35 @@
   body{background:#E4E1D8;font-family:Montserrat,sans-serif;color:var(--ink);padding:10mm}
   h2.group{font:600 13px Montserrat;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin:8mm 0 3mm}
   .row{display:flex;gap:8mm;flex-wrap:wrap}
-  .card{width:90mm;height:55mm;background:var(--cream);position:relative;overflow:hidden;
+  .sheet{--b:0mm;width:calc(90mm + 2*var(--b));height:calc(55mm + 2*var(--b));background:var(--cream);position:relative;overflow:hidden;
         box-shadow:0 2px 8px rgba(0,0,0,.18);flex:none}
+  .card{position:absolute;left:var(--b);top:var(--b);width:90mm;height:55mm}
+  /* elemen latar diperpanjang ke area bleed */
+  .bx{position:absolute}
   .label{font:500 10px Montserrat;color:var(--muted);margin-top:2mm}
 
   /* ---------- FRONT ---------- */
-  .front .leaf{position:absolute;opacity:.10}
+  .front .leaf{position:absolute;opacity:.13}
   .front .top{position:absolute;inset:0 0 15mm 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-  .logo{width:15mm;height:15mm;border-radius:50%;border:.3mm dashed var(--gold);display:flex;align-items:center;justify-content:center;
-        font:600 6px Montserrat;color:var(--gold);letter-spacing:.1em;margin-bottom:1.6mm}
+  .logo{width:15mm;height:15mm;margin-bottom:1.6mm;display:flex;align-items:center;justify-content:center}
+  .logo img{max-width:100%;max-height:100%}
+  .logo.ph{border-radius:50%;border:.3mm dashed var(--gold);font:600 6px Montserrat;color:var(--gold);letter-spacing:.1em}
   .front .co{font:700 13.2pt/1 'Cormorant Garamond',serif;color:var(--green);letter-spacing:.06em}
   .front .cn{font:700 8.2pt/1 'Noto Serif SC',serif;color:var(--green2);letter-spacing:.12em;margin-top:1.4mm}
   .rule{display:flex;align-items:center;gap:1.5mm;margin:1.6mm 0 1.3mm}
   .rule i{display:block;width:9mm;height:.25mm;background:var(--gold)}
   .rule b{display:block;width:1.3mm;height:1.3mm;background:var(--gold);transform:rotate(45deg)}
   .front .tag{font:500 5.6pt Montserrat;color:var(--muted);letter-spacing:.05em}
-  .band{position:absolute;left:0;right:0;bottom:0;height:15mm;background:var(--green);display:flex;justify-content:space-around;align-items:center;padding:0 6mm}
-  .band::before{content:"";position:absolute;left:0;right:0;top:0;height:.5mm;background:var(--gold)}
+  .band{position:absolute;left:0;right:0;bottom:0;height:15mm;z-index:1;background:var(--green);display:flex;justify-content:space-around;align-items:center;padding:0 6mm}
+  .bandbg{left:calc(-1*var(--b));right:calc(-1*var(--b));bottom:calc(-1*var(--b));height:calc(15mm + var(--b));background:var(--green);border-top:.5mm solid var(--gold)}
   .prod{display:flex;flex-direction:column;align-items:center;gap:1mm;color:var(--cream)}
   .prod svg{width:6.2mm;height:6.2mm}
   .prod span{font:600 5pt Montserrat;letter-spacing:.1em;text-transform:uppercase}
 
   /* ---------- BACK ---------- */
-  .back .side{position:absolute;left:0;top:0;bottom:0;width:2.2mm;background:var(--green)}
-  .back .side::after{content:"";position:absolute;right:-.5mm;top:0;bottom:0;width:.5mm;background:var(--gold)}
-  .back .info{position:absolute;left:8mm;top:6.5mm;right:31mm}
-  .name{font:700 13pt/1.05 'Cormorant Garamond',serif;color:var(--green)}
+  .sidebg{left:calc(-1*var(--b));top:calc(-1*var(--b));bottom:calc(-1*var(--b));width:calc(2.2mm + var(--b));background:var(--green);border-right:.5mm solid var(--gold)}
+  .back .info{position:absolute;left:8mm;top:6.5mm;right:30mm}
+  .name{font:700 13pt/1.05 'Cormorant Garamond',serif;color:var(--green);white-space:nowrap}
   .title{font:600 5.6pt Montserrat;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:1.2mm}
   .cnline{font:500 7pt 'Noto Serif SC',serif;color:var(--green2);margin-top:1.1mm;letter-spacing:.08em}
   .back .hr{height:.25mm;background:var(--gold);width:14mm;margin:2.4mm 0 2.2mm}
@@ -52,13 +55,10 @@
   .qrcap.zh{font:700 6.2pt 'Noto Serif SC',serif;letter-spacing:.1em}
   .mini{position:absolute;right:6mm;bottom:4mm;font:700 5pt 'Cormorant Garamond',serif;color:var(--green);letter-spacing:.14em;opacity:.75}
 
-  @media print{
-    body{background:none;padding:0}
-    h2.group,.label{display:none}
-    .row{display:block}
-    .card{box-shadow:none;page-break-after:always}
-    @page{size:90mm 55mm;margin:0}
-  }
+  /* mode cetak: ?cetak=<orang>-<versi> → 2 halaman 96×61 mm (bleed 3 mm) */
+  body.cetak{background:none;padding:0}
+  body.cetak .sheet{--b:3mm;box-shadow:none;break-after:page}
+  @page{size:96mm 61mm;margin:0}
 </style>
 </head>
 <body>
@@ -82,11 +82,12 @@
 </svg>
 
 <template id="front">
-  <div class="card front">
+  <div class="sheet"><div class="card front">
+    <div class="bx bandbg"></div>
     <svg class="leaf" style="width:34mm;height:34mm;right:-9mm;top:-8mm;transform:rotate(200deg)"><use href="#leafdeco"/></svg>
     <svg class="leaf" style="width:26mm;height:26mm;left:-8mm;top:-6mm;transform:rotate(150deg)"><use href="#leafdeco"/></svg>
     <div class="top">
-      <div class="logo">LOGO</div>
+      <div class="logo ph">LOGO</div>
       <div class="co">PT MADAFA ALAM SEJAHTERA</div>
       <div class="cn" data-zh>印尼玛达法天然农产品有限公司</div>
       <div class="rule"><i></i><b></b><i></i></div>
@@ -97,7 +98,7 @@
       <div class="prod"><svg><use href="#i-mangosteen"/></svg><span>Mangosteen</span></div>
       <div class="prod"><svg><use href="#i-dracaena"/></svg><span>Dracaena</span></div>
     </div>
-  </div>
+  </div></div>
 </template>
 
 <div id="out"></div>
@@ -105,27 +106,37 @@
 <script>
 const people = [
   {key:'fauzan', name:'dr. Fauzan Muhammad Yusuf', title:'President Director', phone:'+62 813-1508-7272',
-   email:'fauzan@madafaalamsejahtera.com', zh:'法赞 · 总裁', wechat:'fauzanmas',
-   wechatQR:'assets/qr-wechat-fauzan.png', label:'Bapak (dr. Fauzan)'},
+   email:'fauzan@madafaalamsejahtera.com', zh:'法赞 · 总裁', wechat:'fauzanmas', label:'Bapak (dr. Fauzan)'},
   {key:'resya', name:'Resya Nuralpiah', title:'Director of Business Development', phone:'+62 812-9108-3378',
-   email:'resya@madafaalamsejahtera.com', zh:'蕾莎 · 业务发展总监', wechat:'Resyanura',
-   wechatQR:'assets/qr-wechat-resya.png', label:'Resya'}
+   email:'resya@madafaalamsejahtera.com', zh:'蕾莎 · 业务发展总监', wechat:'Resyanura', label:'Resya'}
 ];
 const WA = '+62 851-1051-1540', WEB = 'madafaalamsejahtera.com', WAQR = 'assets/qr-whatsapp-perusahaan.svg';
-const has = {}; // diisi saat file QR WeChat tersedia
+const LOGO = 'assets/logo-madafa.png';               // taruh file logo di sini
+const wechatQR = k => `assets/qr-wechat-${k}.png`;   // qr-wechat-fauzan.png / qr-wechat-resya.png
+
+// Pakai file bila ada, kalau tidak tampilkan placeholder
+function tryImg(el, src){
+  const im = new Image();
+  im.onload = () => { el.classList.remove('ph'); el.textContent=''; const i=document.createElement('img'); i.src=src; el.append(i); };
+  im.src = src;
+  return new Promise(r => { im.addEventListener('load', r); im.addEventListener('error', r); });
+}
+const waits = [];
 
 function front(zh){
   const n = document.getElementById('front').content.cloneNode(true);
   if(!zh) n.querySelector('[data-zh]').remove();
+  waits.push(tryImg(n.querySelector('.logo'), LOGO));
   return n;
 }
 function back(p, zh){
-  const d = document.createElement('div'); d.className='card back';
+  const s = document.createElement('div'); s.className='sheet';
+  const d = document.createElement('div'); d.className='card back'; s.append(d);
   const qr = zh
-    ? (has[p.key] ? `<div class="qr"><img src="${p.wechatQR}"></div>` : `<div class="qr ph">QR WeChat<br>${p.label}<br>(menunggu file)</div>`)
+    ? `<div class="qr ph" data-qr>QR WeChat<br>${p.label}<br>(menunggu file)</div>`
     : `<div class="qr"><img src="${WAQR}"></div>`;
   d.innerHTML = `
-    <div class="side"></div>
+    <div class="bx sidebg"></div>
     <div class="info">
       <div class="name">${p.name}</div>
       <div class="title">${p.title}</div>
@@ -141,11 +152,26 @@ function back(p, zh){
     </div>
     <div class="qrbox">${qr}<div class="qrcap ${zh?'zh':''}">${zh ? '扫码加微信' : 'Scan to WhatsApp'}</div></div>
     <div class="mini">MADAFA</div>`;
-  return d;
+  if (zh) waits.push(tryImg(d.querySelector('[data-qr]'), wechatQR(p.key)));
+  return s;
 }
+// Perkecil nama sampai muat satu baris
+function fitNames(){
+  document.querySelectorAll('.name').forEach(n => {
+    let pt = 13;
+    while (n.scrollWidth > n.parentElement.clientWidth && pt > 8) { pt -= .25; n.style.fontSize = pt + 'pt'; }
+  });
+}
+
 const out = document.getElementById('out');
-for (const zh of [false, true]) {
-  for (const p of people) {
+const cetak = new URLSearchParams(location.search).get('cetak'); // mis. fauzan-intl, resya-china
+if (cetak) {
+  document.body.classList.add('cetak');
+  const [k, v] = cetak.split('-'); const p = people.find(x => x.key === k), zh = v === 'china';
+  const f = document.createElement('div'); f.append(front(zh));
+  out.append(f.firstElementChild, back(p, zh));
+} else {
+  for (const zh of [false, true]) for (const p of people) {
     const h = document.createElement('h2'); h.className='group';
     h.textContent = `${p.label} · Versi ${zh ? 'China' : 'Internasional'}`;
     const row = document.createElement('div'); row.className='row';
@@ -154,6 +180,7 @@ for (const zh of [false, true]) {
     row.append(a,b); out.append(h,row);
   }
 }
+window.siap = document.fonts.ready.then(() => Promise.all(waits)).then(() => { fitNames(); return true; });
 </script>
 </body>
 </html>
